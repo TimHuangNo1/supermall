@@ -25,5 +25,8 @@
 </script>
 
 <style scoped>
-
+  .detail-swiper {
+    height: 250px;
+    overflow: hidden;
+  }
 </style>
