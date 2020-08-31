@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item">
-    <img :src="goodsItem.show.img" alt="">
+    <img :src="goodsItem.show.img" alt="" @load="imagLoad">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -18,6 +18,13 @@
                 default() {
                     return {}
                 }
+            }
+        },
+        methods: {
+            //监听图片加载完成，解决滚动区域的bug
+            imagLoad(){
+                // console.log('imagLoad')
+                this.$bus.$emit('itemImageLoad')
             }
         }
     }

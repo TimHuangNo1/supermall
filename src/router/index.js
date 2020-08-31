@@ -52,6 +52,7 @@ const routes = [
 const router = new VueRouter({
   routes,
   mode: 'history'
+
 })
 
 //4.导出
