@@ -11,6 +11,7 @@ const Home = () => import('../views/home/Home')
 const Category = () => import('../views/category/Category')
 const Cart = () => import('../views/cart/Cart')
 const Profile = () => import('../views/profile/Profile')
+const Detail = () => import('../views/detail/Detail')
 
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
@@ -42,10 +43,10 @@ const routes = [
     path: '/profile',
     component: Profile
   },
-  // {
-  //   path: '/detail',
-  //   component: Detail
-  // }
+  {
+    path: '/detail/:iid',
+    component: Detail
+  }
 ]
 
 //3.创建router对象
