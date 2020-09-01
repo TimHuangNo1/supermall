@@ -37,7 +37,7 @@
             imgLoad() {
                 // 判断 当所有的图片都加载完了，才能进行一次回调
                 if(++this.counter === this.imagesLength) {
-                    console.log('de-goods-imageload');
+                    // console.log('de-goods-imageload');
                     this.$emit('imageLoad');
                 }
             }

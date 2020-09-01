@@ -14,12 +14,12 @@
             @scroll="contentScroll"
             :pull-up-load="true"
             @pullingUp="loadMore">
-    <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"></home-swiper>
-    <recommend-view :recommends="recommends"/>
-    <feature-view></feature-view>
-    <tab-control :titles="['流行', '新款', '精选']"
-                 @tabClick="tabClick"
-                 ref="tabControl2"></tab-control>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"></home-swiper>
+      <recommend-view :recommends="recommends"/>
+      <feature-view></feature-view>
+      <tab-control :titles="['流行', '新款', '精选']"
+                   @tabClick="tabClick"
+                   ref="tabControl2"></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
@@ -27,11 +27,11 @@
 </template>
 
 <script>
-    import NavBar from "../../components/common/navbar/NavBar";
     import HomeSwiper from "./childComps/HomeSwiper";
     import RecommendView from "./childComps/RecommendView";
     import FeatureView from "./childComps/FeatureView";
 
+    import NavBar from "../../components/common/navbar/NavBar";
     import TabControl from "../../components/content/tabControl/TabControl";
     import GoodsList from "../../components/content/goods/GoodsList";
     import Scroll from "../../components/common/scroll/Scroll";
@@ -39,6 +39,7 @@
 
     import {getHomeMultidata, getHomeGoods} from "../../network/home";
     import {debounce} from "../../common/utils";
+    import {itemListener} from "../../common/mixin";
 
     export default {
         name: "Home",
@@ -52,11 +53,7 @@
             Scroll,
             BackTop
         },
-        computed: {
-          showGoods(){
-            return this.goods[this.currentType].list
-          }
-        },
+        mixins: [itemListener],
         data() {
             return {
                 banners: [],
@@ -71,6 +68,11 @@
                 tabOffsetTop: 0,
                 isTabFixed: false,
                 saveY: 0
+            }
+        },
+        computed: {
+            showGoods() {
+                return this.goods[this.currentType].list
             }
         },
         created() {
@@ -99,16 +101,21 @@
         },
         deactivated() {
             // console.log('deactivated');
+            //1.保持Y值
             this.saveY = this.$refs.scroll.getScrollY()
+
+            //2.取消全局事件监听
+            this.$bus.$off('itemImgLoad',this.itemListener)
         },
         mounted() {
             //防抖
             // const refresh = this.debounce(this.$refs.scroll.refresh,200)
-            const refresh = debounce(this.$refs.scroll.refresh,200)
-
-            this.$bus.$on('itemImageLoad', () => {
-                refresh()
-            })
+            //使用混入函数mixin中的itemListener，注释以下方法
+            // const refresh = debounce(this.$refs.scroll.refresh, 200)
+            //
+            // this.$bus.$on('itemImageLoad', () => {
+            //     refresh()
+            // })
 
             //获取tabControl的offsetTop
             //所有的组件都有一个属性：$el,用于获取组件中的元素
@@ -116,7 +123,7 @@
             // this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
 
         },
-        methods:{
+        methods: {
             /**
              *事件监听相关方法
              * **/
@@ -131,7 +138,7 @@
             //         },delay)
             //     }
             // },
-            tabClick(index){
+            tabClick(index) {
                 switch (index) {
                     case 0:
                         this.currentType = 'pop'
@@ -160,7 +167,7 @@
                 this.isTabFixed = (-postion.y) > this.tabOffsetTop;
             },
 
-            loadMore(){
+            loadMore() {
                 //直接调用加载函数
                 // console.log('------')
                 this.getHomeGoods(this.currentType)
@@ -179,14 +186,14 @@
             /**
              * 网络请求相关
              * **/
-            getHomeMultidata(){
+            getHomeMultidata() {
                 getHomeMultidata().then(res => {
                     // console.log(res)
                     this.banners = res.data.banner.list;
                     this.recommends = res.data.recommend.list;
                 })
             },
-            getHomeGoods(type){
+            getHomeGoods(type) {
                 const page = this.goods[type].page + 1
                 getHomeGoods(type, page).then(res => {
                     //获取前30页数据
@@ -247,6 +254,7 @@
   .tab-control {
 
   }
+
   /*.content {*/
   /*height: calc(100% - 93px);*/
   /*overflow: hidden;*/

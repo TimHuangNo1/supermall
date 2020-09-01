@@ -1,6 +1,6 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
+    <detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="navbar"></detail-nav-bar>
     <scroll class="content" ref="scroll">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
@@ -26,6 +26,8 @@
     import Scroll from "../../components/common/scroll/Scroll";
     import GoodsList from "../../components/content/goods/GoodsList";
     import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail';
+    import {itemListener} from "../../common/mixin";
+    import {debounce} from "../../common/utils";
 
     export default {
         name: "Detail",
@@ -40,6 +42,7 @@
             Scroll,
             GoodsList
         },
+        mixins:[itemListener],
         data(){
             return {
                 iid: null,
@@ -49,7 +52,9 @@
                 detailInfo: {},
                 paramInfo: {},
                 commentInfo:{},
-                recommends: []
+                recommends: [],
+                themeTopYs: [],
+                getThemeTopY: {}
             }
         },
         created() {
@@ -57,7 +62,7 @@
             this.iid = this.$route.params.iid;
             //2.根据iid请求详情数据
             getDetail(this.iid).then(res => {
-                console.log(res)
+                // console.log(res)
                 //1.获取顶部图片的轮播数据
                 const data = res.result;
                 this.topImages = data.itemInfo.topImages;
@@ -78,6 +83,20 @@
                 if(data.rate.CRate !== 0) {
                     this.commentInfo = data.rate.list[0];
                 }
+
+                //获取购物车信息
+
+                //8.getThemeTopY赋值（使用防抖函数）
+                // this.getThemeTopY = debounce(() => {
+                //     //获取每个组件距离顶部的Y值
+                //     // this.themeTopYs = [];
+                //     this.themeTopYs.push(0);
+                //     this.themeTopYs.push(this.$refs.navbar.$el.$offsetTop);
+                //     // this.themeTopYs
+                //     // this.themeTopYs
+                //     console.log(this.themeTopYs);
+                // },50)
+
             });
 
             //3.请求推荐数据
@@ -88,11 +107,21 @@
 
         },
 
+        destroyed() {
+            // console.log('destroyed');
+            //取消全局事件监听
+            this.$bus.$off('itemImgLoad',this.itemListener);
+        },
+
+
         methods: {
             imageLoad() {
                 // console.log('------');
-                this.$refs.scroll.refresh();
+                 this.$refs.scroll.refresh();
 
+            },
+            titleClick(index) {
+                console.log(index);
             }
         }
     }

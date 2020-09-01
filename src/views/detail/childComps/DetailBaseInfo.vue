@@ -45,6 +45,10 @@
   }
 
   .info-title {
+    color: #222
+  }
+
+  .info-price {
     margin-top: 10px;
   }
 
@@ -76,7 +80,7 @@
     margin-top: 15px;
     line-height: 30px;
     display: flex;
-    font-size: 13px;
+    font-size: 12px;
     border-bottom: 1px solid rgba(100,100,100,.1);
     justify-content: space-between;
   }
@@ -88,14 +92,14 @@
   }
 
   .info-service-item img {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     position: relative;
     top: 2px;
   }
 
   .info-service-item span {
-    font-size: 13px;
+    font-size: 12px;
     color: #333;
   }
 </style>
