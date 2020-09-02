@@ -39,7 +39,7 @@
 
     import {getHomeMultidata, getHomeGoods} from "../../network/home";
     import {debounce} from "../../common/utils";
-    import {itemListener} from "../../common/mixin";
+    import {itemListener, backTop} from "../../common/mixin";
 
     export default {
         name: "Home",
@@ -51,9 +51,9 @@
             TabControl,
             GoodsList,
             Scroll,
-            BackTop
+            // BackTop
         },
-        mixins: [itemListener],
+        mixins: [itemListener, backTop],
         data() {
             return {
                 banners: [],
@@ -64,7 +64,7 @@
                     'sell': {page: 0, list: []}
                 },
                 currentType: 'pop',
-                isShowBackTop: false,
+                // isShowBackTop: false,
                 tabOffsetTop: 0,
                 isTabFixed: false,
                 saveY: 0
@@ -154,14 +154,15 @@
                 this.$refs.tabControl2.currentIndex = index;
             },
 
-            backClick() {
-                this.$refs.scroll.scrollTo(0, 0, 500)
-                //console.log('111')
-            },
+            // backClick() {
+            //     this.$refs.scroll.scrollTo(0, 0, 500)
+            //     //console.log('111')
+            // },
 
             contentScroll(postion) {
                 //1、判断backTop是否显示
-                this.isShowBackTop = (-postion.y) > 1000;
+                // this.isShowBackTop = (-postion.y) > 1000;
+                this.showBackTop(postion);
 
                 //2、判断tabControl是否吸顶
                 this.isTabFixed = (-postion.y) > this.tabOffsetTop;

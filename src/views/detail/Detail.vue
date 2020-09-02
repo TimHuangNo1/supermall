@@ -1,7 +1,16 @@
 <template>
   <div id="detail">
     <detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="navbar"></detail-nav-bar>
-    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+    <scroll class="content"
+            ref="scroll"
+            :probe-type="3"
+            @scroll="contentScroll">
+<!--      <div>{{$store.state.cartList.length}}</div>-->
+      <ul>
+        <li v-for="m in $store.state.cartList">
+          {{m}}
+        </li>
+      </ul>
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
@@ -10,11 +19,14 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
       <goods-list ref="recommend" :goods="recommends"></goods-list>
     </scroll>
+    <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
 
   </div>
 </template>
 
 <script>
+    //子组件
     import DetailNavBar from "./childComps/DetailNavBar";
     import DetailSwiper from "./childComps/DetailSwiper";
     import DetailBaseInfo from "./childComps/DetailBaseInfo";
@@ -22,12 +34,18 @@
     import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
     import DetailParamInfo from "./childComps/DetailParamInfo";
     import DetailCommentInfo from "./childComps/DetailCommentInfo";
+    import DetailBottomBar from "./childComps/DetailBottomBar";
 
+    //公共组件
     import Scroll from "../../components/common/scroll/Scroll";
     import GoodsList from "../../components/content/goods/GoodsList";
+    // import BackTop from "../../components/content/backTop/BackTop";
+
+    //封装的工具函数
     import {getDetail, Goods, Shop, GoodsParam, getRecommend} from 'network/detail';
-    import {itemListener} from "../../common/mixin";
+    import {itemListener, backTop} from "../../common/mixin";
     import {debounce} from "../../common/utils";
+    import {TOP_DISTANCE} from "../../common/const";
 
     export default {
         name: "Detail",
@@ -39,10 +57,12 @@
             DetailGoodsInfo,
             DetailParamInfo,
             DetailCommentInfo,
+            DetailBottomBar,
             Scroll,
-            GoodsList
+            GoodsList,
+            // BackTop
         },
-        mixins:[itemListener],
+        mixins:[itemListener, backTop],
         data(){
             return {
                 iid: null,
@@ -55,7 +75,9 @@
                 recommends: [],
                 themeTopYs: [],
                 getThemeTopY: {},
-                currentIndex: 0
+                currentIndex: 0,
+                // isShowBackTop: false
+
             }
         },
         created() {
@@ -134,6 +156,11 @@
                 console.log(index);
                 this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
             },
+            //回到顶部
+            // backClick() {
+            //     this.$refs.scroll.scrollTo(0, 0, 500)
+            //     //console.log('111')
+            // },
             contentScroll(position) {
                 // console.log(Number.MAX_VALUE);
                 const positionY = -position.y;
@@ -146,7 +173,26 @@
                         this.$refs.navbar.currentIndex = this.currentIndex;
                     }
                 }
+                //判断backTop是否显示
+                // this.isShowBackTop = (-position.y) > TOP_DISTANCE;
+                this.showBackTop(position);
+            },
+            addToCart() {
+                console.log('addToCart')
+                //1、获取购物车需要展示的信息加入购物车
+                const product = {};
+                product.image = this.topImages[0];
+                product.title = this.goods.title;
+                product.desc = this.goods.desc;
+                product.price = this.goods.newPrice;
+                product.iid = this.iid;
+                product.realPrice = this.goods.realPrice;
+
+                //2、将商品添加购物车里面
+                this.$store.commit('addCart', product);
+
             }
+
         }
     }
 </script>
