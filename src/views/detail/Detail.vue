@@ -1,12 +1,12 @@
 <template>
   <div id="detail">
     <detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="navbar"></detail-nav-bar>
-    <scroll class="content" ref="scroll">
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
-      <detail-param-info :param-info="paramInfo"></detail-param-info>
+      <detail-param-info :param-info="paramInfo" ref="params"></detail-param-info>
       <detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
       <goods-list ref="recommend" :goods="recommends"></goods-list>
     </scroll>
@@ -54,7 +54,8 @@
                 commentInfo:{},
                 recommends: [],
                 themeTopYs: [],
-                getThemeTopY: {}
+                getThemeTopY: {},
+                currentIndex: 0
             }
         },
         created() {
@@ -86,16 +87,14 @@
 
                 //获取购物车信息
 
-                //8.getThemeTopY赋值（使用防抖函数）
-                // this.getThemeTopY = debounce(() => {
-                //     //获取每个组件距离顶部的Y值
-                //     // this.themeTopYs = [];
+
+                // this.$nextTick(()=> {
                 //     this.themeTopYs.push(0);
-                //     this.themeTopYs.push(this.$refs.navbar.$el.$offsetTop);
-                //     // this.themeTopYs
-                //     // this.themeTopYs
+                //     this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+                //     this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+                //     this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
                 //     console.log(this.themeTopYs);
-                // },50)
+                // })
 
             });
 
@@ -104,6 +103,16 @@
                 // console.log(res)
                 this.recommends = res.data.list;
             });
+
+            // 4.getThemeTopY赋值（使用防抖函数）
+            this.getThemeTopY = debounce(()=> {
+                this.themeTopYs.push(0);
+                this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+                this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+                this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+                this.themeTopYs.push(Number.MAX_VALUE);
+                console.log(this.themeTopYs);
+            })
 
         },
 
@@ -117,11 +126,26 @@
         methods: {
             imageLoad() {
                 // console.log('------');
-                 this.$refs.scroll.refresh();
+                this.$refs.scroll.refresh();
+                this.getThemeTopY();
 
             },
             titleClick(index) {
                 console.log(index);
+                this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 200)
+            },
+            contentScroll(position) {
+                // console.log(Number.MAX_VALUE);
+                const positionY = -position.y;
+                const length = this.themeTopYs.length;
+                for (let i =0; i < length - 1;  i++){
+                    if(this.currentIndex !== i
+                        && (positionY >= this.themeTopYs[i]
+                            && positionY < this.themeTopYs[i + 1])){
+                        this.currentIndex = i;
+                        this.$refs.navbar.currentIndex = this.currentIndex;
+                    }
+                }
             }
         }
     }
