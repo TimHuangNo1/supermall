@@ -6,11 +6,11 @@
             :probe-type="3"
             @scroll="contentScroll">
 <!--      <div>{{$store.state.cartList.length}}</div>-->
-      <ul>
-        <li v-for="m in $store.state.cartList">
-          {{m}}
-        </li>
-      </ul>
+<!--      <ul>-->
+<!--        <li v-for="m in $store.state.cartList">-->
+<!--          {{m}}-->
+<!--        </li>-->
+<!--      </ul>-->
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
       <detail-shop-info :shop="shop"></detail-shop-info>
@@ -46,6 +46,8 @@
     import {itemListener, backTop} from "../../common/mixin";
     import {debounce} from "../../common/utils";
     import {TOP_DISTANCE} from "../../common/const";
+
+    import {mapActions} from 'vuex';
 
     export default {
         name: "Detail",
@@ -146,6 +148,9 @@
 
 
         methods: {
+            //使用对象方式：'addCart'
+            ...mapActions(['addCart']),
+
             imageLoad() {
                 // console.log('------');
                 this.$refs.scroll.refresh();
@@ -189,8 +194,21 @@
                 product.realPrice = this.goods.realPrice;
 
                 //2、将商品添加购物车里面
-                this.$store.commit('addCart', product);
+                //this.$store.commit('addCart', product);
 
+                //将上面 的方法影射到本组件内部(利用mapActions
+                this.addCart(product).then(res => {
+                    console.log(res);
+                    // this.show = true;
+                    // this.message = res;
+                    //
+                    // setTimeout(() => {
+                    //   this.show = false;
+                    //   this.message = '';
+                    // }, 1500);
+                    // console.log(this.$toast);
+                    // this.$toast.show(res, 2000);
+                })
             }
 
         }
